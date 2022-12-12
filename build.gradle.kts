@@ -19,8 +19,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
-    println("SpaceClientId: ${System.getenv("JB_SPACE_CLIENT_ID")}")
 }
 
 

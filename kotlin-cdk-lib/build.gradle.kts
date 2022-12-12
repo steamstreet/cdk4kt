@@ -21,7 +21,7 @@ val wrappers = tasks.register<GenerateKotlinWrappers>("generate-wrappers") {
     outputDir.set(File(buildDir, "cdk/wrappers").canonicalPath)
     outputPackage.set("com.steamstreet.cdk.kotlin")
 }
-tasks["jvmMainClasses"].dependsOn(wrappers)
+tasks["compileKotlinJvm"].dependsOn(wrappers)
 
 publishing {
     repositories {
