@@ -26,7 +26,7 @@ tasks["jvmMainClasses"].dependsOn(wrappers)
 publishing {
     repositories {
         maven {
-            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/steamstreet")
+            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/vegasful")
 
             credentials {
                 username = (project.findProperty("steamstreet.space.username") as? String) ?: System.getenv("JB_SPACE_CLIENT_ID")
