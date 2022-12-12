@@ -25,6 +25,13 @@ tasks["jvmMainClasses"].dependsOn(wrappers)
 
 publishing {
     repositories {
-        maven("https://steamstreet-141660060409.d.codeartifact.us-west-2.amazonaws.com/maven/steamstreet/")
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/steamstreet")
+
+            credentials {
+                username = project.property("steamstreet.space.username") as String
+                password = project.property("steamstreet.space.password") as String
+            }
+        }
     }
 }
