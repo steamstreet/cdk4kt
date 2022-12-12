@@ -217,7 +217,7 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
             } catch (_: Throwable) {
             }
         }
-        files.forEach { (key, value) ->
+        files.forEach { (_, value) ->
             value.build().writeTo(baseDir)
         }
     }
