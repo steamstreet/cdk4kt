@@ -1,3 +1,7 @@
 job("compile") {
-    gradlew("amazoncorretto:17-alpine", "build")
+    container("amazoncorretto:17-alpine") {
+        kotlinScript {
+            it.gradlew("build")
+        }
+    }
 }
