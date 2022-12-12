@@ -29,8 +29,8 @@ publishing {
             url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/steamstreet")
 
             credentials {
-                username = (project.findProperty("steamstreet.space.username") as? String) ?: "${'$'}System.env.JB_SPACE_CLIENT_ID"
-                password = (project.findProperty("steamstreet.space.password") as? String) ?: "${'$'}System.env.JB_SPACE_CLIENT_SECRET"
+                username = (project.findProperty("steamstreet.space.username") as? String) ?: System.getenv("JB_SPACE_CLIENT_ID")
+                password = (project.findProperty("steamstreet.space.password") as? String) ?: System.getenv("JB_SPACE_CLIENT_SECRET")
             }
         }
     }
