@@ -84,11 +84,6 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
     }
 
     fun buildConstruct(clazz: KClass<*>) {
-        clazz.qualifiedName?.takeIf {
-            it.contains(".cognito.")
-        }?.let {
-            println("Building constructs for $it")
-        }
         val group = clazz.qualifiedName
             ?.substringAfter("software.amazon.awscdk.services.", "")
             ?.substringBefore(".", "")?.ifBlank { null } ?: return
