@@ -10,7 +10,7 @@ buildscript {
 }
 
 val MAJOR_VERSION = 2
-val MINOR_VERSION = 64
+val MINOR_VERSION = 69
 
 allprojects {
     group = "com.steamstreet"
