@@ -17,7 +17,7 @@ dependencyResolutionManagement {
                 kotlinSerializationVersion
             )
 
-            library("aws-cdk", "software.amazon.awscdk", "aws-cdk-lib").version("2.64.0")
+            library("aws-cdk", "software.amazon.awscdk", "aws-cdk-lib").version("2.69.0")
             library("aws-cdk-apigateway", "software.amazon.awscdk", "apigatewayv2-integrations-alpha").version("2.64.0")
 
             library("kotlin-poet", "com.squareup", "kotlinpoet").version("1.6.0")
