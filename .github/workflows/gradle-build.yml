@@ -1,0 +1,29 @@
+name: Gradle Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'adopt'
+
+      - name: Set up Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Build and Publish with Gradle
+        run: |
+          ./gradlew publish --no-daemon --info
+        env:
+          GRADLE_OPTS: -Dorg.gradle.daemon=false
