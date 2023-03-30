@@ -1,6 +1,5 @@
 plugins {
     kotlin("multiplatform")
-    `maven-publish`
 }
 
 kotlin {
@@ -22,16 +21,3 @@ val wrappers = tasks.register<GenerateKotlinWrappers>("generate-wrappers") {
     outputPackage.set("com.steamstreet.cdk.kotlin")
 }
 tasks["compileKotlinJvm"].dependsOn(wrappers)
-
-publishing {
-    repositories {
-        maven {
-            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/vegasful")
-
-            credentials {
-                username = (project.findProperty("steamstreet.space.username") as? String) ?: System.getenv("JB_SPACE_CLIENT_ID")
-                password = (project.findProperty("steamstreet.space.password") as? String) ?: System.getenv("JB_SPACE_CLIENT_SECRET")
-            }
-        }
-    }
-}
