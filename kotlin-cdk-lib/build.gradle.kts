@@ -1,5 +1,8 @@
+import java.net.URI
+
 plugins {
     kotlin("multiplatform")
+    id("maven-publish")
 }
 
 kotlin {
@@ -21,3 +24,16 @@ val wrappers = tasks.register<GenerateKotlinWrappers>("generate-wrappers") {
     outputPackage.set("com.steamstreet.cdk.kotlin")
 }
 tasks["compileKotlinJvm"].dependsOn(wrappers)
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = URI("https://maven.pkg.github.com/steamstreet/cdk4kt")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}

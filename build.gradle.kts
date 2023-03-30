@@ -27,5 +27,3 @@ plugins {
     kotlin("plugin.serialization") version "1.7.22" apply false
     kotlin("multiplatform") version "1.7.22" apply false
 }
-
-
