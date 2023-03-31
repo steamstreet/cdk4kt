@@ -28,10 +28,10 @@ jobs:
           TAG_NAME=${GITHUB_REF#refs/tags/releases/}
           echo "Tag name: $TAG_NAME"
           echo "::set-output name=tag_name::$TAG_NAME"        
-#
-#      - name: Build and Publish with Gradle
-#        run: |
-#          ./gradlew publish --no-daemon --info -PreleaseVersion=$TAG_NAME
-#        env:
-#          GRADLE_OPTS: -Dorg.gradle.daemon=false
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Publish with Gradle
+        run: |
+          ./gradlew publish --no-daemon --info -PreleaseVersion=$TAG_NAME
+        env:
+          GRADLE_OPTS: -Dorg.gradle.daemon=false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

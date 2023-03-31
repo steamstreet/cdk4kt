@@ -11,7 +11,7 @@ buildscript {
 
 val cdkVersion = findProperty("cdkVersion") as String
 val kotlinVersion = findProperty("kotlinVersion") as String
-val releaseVersion = findProperty("releastVersion") as? String
+val releaseVersion = findProperty("releaseVersion") as? String
 
 allprojects {
     group = "com.steamstreet"
@@ -20,11 +20,4 @@ allprojects {
     repositories {
         mavenCentral()
     }
-}
-
-
-plugins {
-//    kotlin("jvm") version "1.7.22" apply false
-//    kotlin("plugin.serialization") version "1.7.22" apply false
-//    kotlin("multiplatform") version "1.7.22" apply false
 }
