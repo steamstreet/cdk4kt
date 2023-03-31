@@ -9,12 +9,13 @@ buildscript {
     }
 }
 
-val MAJOR_VERSION = 2
-val MINOR_VERSION = 69
+val cdkVersion = findProperty("cdkVersion") as String
+val kotlinVersion = findProperty("kotlinVersion") as String
+val releaseVersion = findProperty("releastVersion") as? String
 
 allprojects {
     group = "com.steamstreet"
-    version = "$MAJOR_VERSION.$MINOR_VERSION${this.findProperty("BUILD_NUMBER")?.let { ".$it" } ?: ".0-SNAPSHOT"}"
+    version = releaseVersion ?: "$cdkVersion-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -23,7 +24,7 @@ allprojects {
 
 
 plugins {
-    kotlin("jvm") version "1.7.22" apply false
-    kotlin("plugin.serialization") version "1.7.22" apply false
-    kotlin("multiplatform") version "1.7.22" apply false
+//    kotlin("jvm") version "1.7.22" apply false
+//    kotlin("plugin.serialization") version "1.7.22" apply false
+//    kotlin("multiplatform") version "1.7.22" apply false
 }

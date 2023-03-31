@@ -1,9 +1,9 @@
-name: Gradle Build
+name: Gradle Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - releases/*
 
 jobs:
   build-and-publish:
@@ -22,9 +22,16 @@ jobs:
       - name: Set up Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Build and Publish with Gradle
+      - name: Extract tag name
+        id: tag
         run: |
-          ./gradlew publish --no-daemon --info
-        env:
-          GRADLE_OPTS: -Dorg.gradle.daemon=false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME=${GITHUB_REF#refs/tags/releases/}
+          echo "Tag name: $TAG_NAME"
+          echo "::set-output name=tag_name::$TAG_NAME"        
+#
+#      - name: Build and Publish with Gradle
+#        run: |
+#          ./gradlew publish --no-daemon --info -PreleaseVersion=$TAG_NAME
+#        env:
+#          GRADLE_OPTS: -Dorg.gradle.daemon=false
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
