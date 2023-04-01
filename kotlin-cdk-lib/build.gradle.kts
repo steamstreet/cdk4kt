@@ -87,3 +87,7 @@ publishing {
 signing {
     sign(publishing.publications)
 }
+
+tasks.withType<Sign> {
+    onlyIf { project.hasProperty("signing.keyId") }
+}
