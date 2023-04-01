@@ -67,6 +67,15 @@ publishing {
                 password = findProperty("sonatypePassword").toString()
             }
         }
+        maven {
+            name = "space"
+            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/vegasful")
+
+            credentials {
+                username = (project.findProperty("steamstreet.space.username") as? String) ?: System.getenv("JB_SPACE_CLIENT_ID")
+                password = (project.findProperty("steamstreet.space.password") as? String) ?: System.getenv("JB_SPACE_CLIENT_SECRET")
+            }
+        }
     }
 }
 
