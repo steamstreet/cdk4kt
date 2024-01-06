@@ -11,7 +11,7 @@ buildscript {
 
 val cdkVersion = findProperty("cdkVersion") as String
 val kotlinVersion = findProperty("kotlinVersion") as String
-val releaseVersion = findProperty("releaseVersion") as? String
+val releaseVersion = findProperty("RELEASE_NAME") as? String
 
 allprojects {
     group = "com.steamstreet"
