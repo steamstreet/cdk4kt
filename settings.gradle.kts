@@ -19,6 +19,18 @@ pluginManagement {
 dependencyResolutionManagement {
     val cdkVersion : String by settings
 
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    pluginManagement {
+        repositories {
+            gradlePluginPortal()
+            mavenCentral()
+        }
+    }
+
     versionCatalogs {
         create("libs") {
             val kotlinSerializationVersion = version("kotlin-serialization", "1.4.1")

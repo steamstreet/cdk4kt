@@ -7,7 +7,8 @@ fun app(block: App.() -> Unit) {
     App().apply(block).synth()
 }
 
-fun stack(id: String, name: String, init: Stack.() -> Unit): Unit {
+@Suppress("unused")
+fun stack(id: String, name: String, init: Stack.() -> Unit) {
     app {
         stack(id, name, init)
     }

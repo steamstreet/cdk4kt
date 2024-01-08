@@ -22,7 +22,7 @@ abstract class GenerateKotlinWrappers : DefaultTask() {
     }
 
     private fun findJar(): String {
-        val config = project.configurations.getByName("jvmRuntimeClasspath")
+        val config = project.configurations.getByName("runtimeClasspath")
 
         val resolved = config.resolvedConfiguration
         resolved.files.forEach {

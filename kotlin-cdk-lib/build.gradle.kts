@@ -1,29 +1,33 @@
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
     id("maven-publish")
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version "1.9.10"
     signing
 }
 
-kotlin {
-    jvm {}
-
-    sourceSets["jvmMain"].apply {
-        kotlin.srcDir("build/cdk/wrappers")
-
-        dependencies {
-            api(libs.aws.cdk)
-            api(libs.kotlin.serialization.json)
-            api("org.jetbrains.kotlin:kotlin-reflect")
-        }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
     }
+    withSourcesJar()
+}
+
+dependencies {
+    api(libs.aws.cdk)
+    api(libs.kotlin.serialization.json)
+    api("org.jetbrains.kotlin:kotlin-reflect")
+}
+
+java.sourceSets["main"].java {
+    srcDir("build/cdk/wrappers")
 }
 
 val wrappers = tasks.register<GenerateKotlinWrappers>("generate-wrappers") {
-    outputDir.set(File(buildDir, "cdk/wrappers").canonicalPath)
+    outputDir.set(layout.buildDirectory.file("cdk/wrappers").orNull?.asFile?.canonicalPath)
     outputPackage.set("com.steamstreet.cdk.kotlin")
 }
-tasks["compileKotlinJvm"].dependsOn(wrappers)
+
+tasks["classes"].dependsOn(wrappers)
 
 val dokkaHtml by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class)
 
@@ -34,7 +38,7 @@ val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
 }
 
 publishing {
-    publications.withType<MavenPublication> {
+    publications.create<MavenPublication>("maven") {
         artifact(javadocJar)
         pom {
             name.set("CDK4KT")
@@ -57,25 +61,6 @@ publishing {
                 url.set("https://github.com/steamstreet/cdk4kt")
             }
         }
-    }
-    repositories {
-        maven {
-            name = "sonatype"
-            setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-            credentials {
-                username = findProperty("sonatypeUsername").toString()
-                password = findProperty("sonatypePassword").toString()
-            }
-        }
-//        maven {
-//            name = "space"
-//            url = uri("https://maven.pkg.jetbrains.space/steamstreet/p/vg/vegasful")
-//
-//            credentials {
-//                username = (project.findProperty("steamstreet.space.username") as? String) ?: System.getenv("JB_SPACE_CLIENT_ID")
-//                password = (project.findProperty("steamstreet.space.password") as? String) ?: System.getenv("JB_SPACE_CLIENT_SECRET")
-//            }
-//        }
     }
 }
 
