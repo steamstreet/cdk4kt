@@ -48,6 +48,19 @@ dependencyResolutionManagement {
 
             library("kotlin-poet", "com.squareup", "kotlinpoet").version("1.6.0")
             library("kotlin-date-time", "org.jetbrains.kotlinx", "kotlinx-datetime").version("0.4.0")
+
+            val JACKSON_VERSION = "2.16.1"
+            library("jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin")
+                .version(JACKSON_VERSION)
+            library("jackson-jdk8", "com.fasterxml.jackson.datatype", "jackson-datatype-jdk8")
+                .version(JACKSON_VERSION)
+            library("jackson-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310")
+                .version(JACKSON_VERSION)
+            library(
+                "jackson-dataformat-yaml", "com.fasterxml.jackson.dataformat",
+                "jackson-dataformat-yaml"
+            ).version(JACKSON_VERSION)
+
         }
     }
 }

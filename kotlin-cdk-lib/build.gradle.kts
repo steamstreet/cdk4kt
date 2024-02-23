@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 plugins {
     kotlin("jvm")
     id("maven-publish")
@@ -16,6 +18,11 @@ dependencies {
     api(libs.aws.cdk)
     api(libs.kotlin.serialization.json)
     api("org.jetbrains.kotlin:kotlin-reflect")
+    api(libs.jackson)
+}
+
+kotlin {
+    explicitApi = ExplicitApiMode.Warning
 }
 
 java.sourceSets["main"].java {
@@ -27,7 +34,9 @@ val wrappers = tasks.register<GenerateKotlinWrappers>("generate-wrappers") {
     outputPackage.set("com.steamstreet.cdk.kotlin")
 }
 
-tasks["classes"].dependsOn(wrappers)
+tasks.named("compileKotlin") {
+    dependsOn(wrappers)
+}
 
 val dokkaHtml by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class)
 
