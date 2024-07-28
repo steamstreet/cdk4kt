@@ -119,6 +119,8 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
             return
         }
 
+        val idOnlyConstructors = hashSetOf<String>()
+
         clazz.constructors.filter {
             it.visibility == KVisibility.PUBLIC && !it.annotations.isDeprecated
         }.forEach { constructor ->
@@ -156,8 +158,9 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                     val propsParam = constructor.parameters.getOrNull(2)
                     val propsType = (propsParam?.type?.classifier as? KClass<*>)
                     val builder = propsType?.members?.find { it.name == "builder" }
+                    val isDuplicate = builder == null && idOnlyConstructors.contains(clazz.simpleName!!)
 
-                    if (isIdConstructor) {
+                    if (isIdConstructor && !isDuplicate) {
                         constructorsFile.addFunction(
                             FunSpec.builder(clazz.simpleName!!).returns(clazz)
                                 .receiver(firstType)
@@ -181,6 +184,7 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                                         )
                                     } else {
                                         addStatement("return %T(this, id)", clazz)
+                                        idOnlyConstructors.add(clazz.simpleName!!)
                                     }
                                 }.build()
                         )
