@@ -15,7 +15,7 @@ val releaseVersion = findProperty("RELEASE_NAME") as? String
 
 allprojects {
     group = "com.steamstreet"
-    version = releaseVersion ?: "$cdkVersion-SNAPSHOT"
+    version = releaseVersion?.removePrefix("v") ?: "$cdkVersion-SNAPSHOT"
 }
 
 nexusPublishing {
