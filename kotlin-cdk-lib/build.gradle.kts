@@ -48,6 +48,7 @@ val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
 
 publishing {
     publications.create<MavenPublication>("maven") {
+        from(components["java"])
         artifact(javadocJar)
         pom {
             name.set("CDK4KT")
