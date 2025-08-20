@@ -5,9 +5,8 @@ rootProject.name = "kotlin-cdk"
 include(":kotlin-cdk-lib")
 
 pluginManagement {
-    val kotlinVersion : String by settings
-
-    resolutionStrategy {
+    val kotlinVersion: String by settings
+   resolutionStrategy {
         eachPlugin {
             if (requested.id.namespace != null && requested.id.namespace!!.startsWith("org.jetbrains.kotlin")) {
                 useVersion(kotlinVersion)
@@ -16,8 +15,12 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
-    val cdkVersion : String by settings
+    val cdkVersion: String by settings
 
     repositories {
         mavenCentral()
@@ -34,17 +37,25 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             val kotlinSerializationVersion = version("kotlin-serialization", "1.4.1")
-            library("kotlin-serialization-core", "org.jetbrains.kotlinx",
-                "kotlinx-serialization-core").versionRef(
+            library(
+                "kotlin-serialization-core", "org.jetbrains.kotlinx",
+                "kotlinx-serialization-core"
+            ).versionRef(
                 kotlinSerializationVersion
             )
-            library("kotlin-serialization-json", "org.jetbrains.kotlinx",
-                "kotlinx-serialization-json").versionRef(
+            library(
+                "kotlin-serialization-json", "org.jetbrains.kotlinx",
+                "kotlinx-serialization-json"
+            ).versionRef(
                 kotlinSerializationVersion
             )
 
             library("aws-cdk", "software.amazon.awscdk", "aws-cdk-lib").version(cdkVersion)
-            library("aws-cdk-apigateway", "software.amazon.awscdk", "apigatewayv2-integrations-alpha").version("${cdkVersion}-alpha.0")
+            library(
+                "aws-cdk-apigateway",
+                "software.amazon.awscdk",
+                "apigatewayv2-integrations-alpha"
+            ).version("${cdkVersion}-alpha.0")
 
             library("kotlin-poet", "com.squareup", "kotlinpoet").version("1.6.0")
             library("kotlin-date-time", "org.jetbrains.kotlinx", "kotlinx-datetime").version("0.4.0")
