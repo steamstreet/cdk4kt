@@ -1,0 +1,195 @@
+name: CDK Update Validation
+
+on:
+  # Run on dependabot PRs that update CDK
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - 'gradle.properties'
+      - 'build.gradle.kts'
+      - 'buildSrc/**'
+
+jobs:
+  validate-cdk-update:
+    runs-on: ubuntu-latest
+    if: contains(github.head_ref, 'dependabot') && contains(github.event.pull_request.title, 'cdkVersion')
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 17
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Extract CDK version from PR
+        id: extract-version
+        run: |
+          CDK_VERSION=$(grep "cdkVersion=" gradle.properties | cut -d'=' -f2)
+          echo "cdk_version=$CDK_VERSION" >> $GITHUB_OUTPUT
+          echo "CDK Version: $CDK_VERSION"
+
+      - name: Build and generate wrappers
+        run: |
+          echo "Building with CDK version ${{ steps.extract-version.outputs.cdk_version }}"
+          ./gradlew clean build
+
+      - name: Verify code generation
+        run: |
+          # Check that critical construct wrappers are generated
+          WRAPPERS_DIR="kotlin-cdk-lib/build/cdk/wrappers"
+          
+          echo "Checking for critical construct wrappers..."
+          
+          # Check for Queue construct
+          if [ ! -f "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/sqs/sqs.kt" ]; then
+            echo "❌ SQS Queue wrapper not generated"
+            exit 1
+          fi
+          
+          # Verify Queue constructor exists
+          if ! grep -q "fun Construct.Queue(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/sqs/sqs.kt"; then
+            echo "❌ Queue construct function not found"
+            exit 1
+          fi
+          
+          # Check for Alarm construct
+          if [ ! -f "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/cloudwatch/cloudwatch.kt" ]; then
+            echo "❌ CloudWatch Alarm wrapper not generated"
+            exit 1
+          fi
+          
+          # Verify Alarm constructor exists
+          if ! grep -q "fun Construct.Alarm(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/cloudwatch/cloudwatch.kt"; then
+            echo "❌ Alarm construct function not found"
+            exit 1
+          fi
+          
+          # Check for Rule construct
+          if [ ! -f "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/events/events.kt" ]; then
+            echo "❌ Events Rule wrapper not generated"
+            exit 1
+          fi
+          
+          # Verify Rule constructor exists
+          if ! grep -q "fun Construct.Rule(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/events/events.kt"; then
+            echo "❌ Rule construct function not found"
+            exit 1
+          fi
+          
+          echo "✅ All critical construct wrappers generated successfully"
+
+      - name: Test Lambda extensions
+        run: |
+          echo "Testing that Lambda extensions compile with generated wrappers..."
+          ./gradlew :kotlin-cdk-lib:compileKotlin
+
+      - name: Generate compatibility report
+        run: |
+          echo "## CDK ${{ steps.extract-version.outputs.cdk_version }} Compatibility Report" > cdk-report.md
+          echo "" >> cdk-report.md
+          echo "### ✅ Validation Results" >> cdk-report.md
+          echo "- Build: Success" >> cdk-report.md
+          echo "- Code Generation: Success" >> cdk-report.md
+          echo "- Construct Wrappers: Generated" >> cdk-report.md
+          echo "- Lambda Extensions: Compiled" >> cdk-report.md
+          echo "" >> cdk-report.md
+          
+          # Count generated files
+          WRAPPER_COUNT=$(find kotlin-cdk-lib/build/cdk/wrappers -name "*.kt" | wc -l)
+          echo "- Generated Wrapper Files: $WRAPPER_COUNT" >> cdk-report.md
+          
+          # List key services
+          echo "" >> cdk-report.md
+          echo "### Generated Services" >> cdk-report.md
+          find kotlin-cdk-lib/build/cdk/wrappers -name "*.kt" | grep -o "kotlin/[^/]*/" | sort | uniq | sed 's/kotlin\///g' | sed 's/\///g' | sed 's/^/- /' >> cdk-report.md
+
+      - name: Comment PR with report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('cdk-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+  # Job to check for breaking changes
+  check-breaking-changes:
+    runs-on: ubuntu-latest
+    if: contains(github.head_ref, 'dependabot') && contains(github.event.pull_request.title, 'cdkVersion')
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build with current CDK version
+        run: |
+          git checkout HEAD~1 -- gradle.properties
+          OLD_CDK_VERSION=$(grep "cdkVersion=" gradle.properties | cut -d'=' -f2)
+          echo "OLD_CDK_VERSION=$OLD_CDK_VERSION" >> $GITHUB_ENV
+          ./gradlew clean build
+
+      - name: Save old generated files
+        run: |
+          mkdir -p /tmp/old-wrappers
+          cp -r kotlin-cdk-lib/build/cdk/wrappers/* /tmp/old-wrappers/ 2>/dev/null || true
+
+      - name: Build with new CDK version
+        run: |
+          git checkout HEAD -- gradle.properties
+          NEW_CDK_VERSION=$(grep "cdkVersion=" gradle.properties | cut -d'=' -f2)
+          echo "NEW_CDK_VERSION=$NEW_CDK_VERSION" >> $GITHUB_ENV
+          ./gradlew clean build
+
+      - name: Compare generated files
+        run: |
+          echo "## Breaking Changes Analysis" > breaking-changes.md
+          echo "" >> breaking-changes.md
+          echo "Comparing CDK $OLD_CDK_VERSION → $NEW_CDK_VERSION" >> breaking-changes.md
+          echo "" >> breaking-changes.md
+          
+          # Simple diff to detect major changes
+          if diff -r /tmp/old-wrappers kotlin-cdk-lib/build/cdk/wrappers > /tmp/diff.out 2>&1; then
+            echo "✅ No significant changes detected in generated wrappers" >> breaking-changes.md
+          else
+            echo "⚠️ Changes detected in generated wrappers:" >> breaking-changes.md
+            echo '```diff' >> breaking-changes.md
+            head -50 /tmp/diff.out >> breaking-changes.md
+            echo '```' >> breaking-changes.md
+            echo "" >> breaking-changes.md
+            echo "Please review changes carefully before merging." >> breaking-changes.md
+          fi
+
+      - name: Comment breaking changes analysis
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('breaking-changes.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });

@@ -1,0 +1,77 @@
+version: 2
+updates:
+  # Update Gradle dependencies (including AWS CDK)
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "@steamstreet/cdk4kt-maintainers"
+    assignees:
+      - "@steamstreet/cdk4kt-maintainers"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Group AWS CDK updates separately for easier review
+    groups:
+      aws-cdk:
+        patterns:
+          - "software.amazon.awscdk:*"
+        update-types:
+          - "minor"
+          - "patch"
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlinx:*"
+        update-types:
+          - "minor"
+          - "patch"
+      build-tools:
+        patterns:
+          - "com.gradle:*"
+          - "org.gradle:*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Allow major version updates for AWS CDK but flag them for manual review
+    ignore:
+      - dependency-name: "software.amazon.awscdk:*"
+        update-types: [ "version-update:semver-major" ]
+
+  # Update Gradle wrapper
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "main"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    labels:
+      - "build-tools"
+      - "automated"
+
+  # Update GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "ci"
+      - "automated"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+          - "gradle/*"

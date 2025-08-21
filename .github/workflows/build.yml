@@ -4,6 +4,9 @@ on:
   push:
     branches:
     - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -19,6 +22,44 @@ jobs:
       # validate that the gradle wrapper matches official checksums.
       - uses: gradle/actions/wrapper-validation@v3
 
-      - name: Build and Publish with Gradle
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build and Test
         run: |
           ./gradlew build
+
+      - name: Validate Code Generation
+        run: |
+          # Verify critical construct wrappers are generated
+          echo "Validating code generation..."
+          
+          WRAPPERS_DIR="kotlin-cdk-lib/build/cdk/wrappers"
+          
+          # Check core construct functions exist
+          if ! grep -q "fun Construct.Queue(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/sqs/sqs.kt"; then
+            echo "❌ Queue construct function missing"
+            exit 1
+          fi
+          
+          if ! grep -q "fun Construct.Alarm(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/cloudwatch/cloudwatch.kt"; then
+            echo "❌ Alarm construct function missing"
+            exit 1
+          fi
+          
+          if ! grep -q "fun Construct.Rule(" "$WRAPPERS_DIR/com/steamstreet/cdk/kotlin/events/events.kt"; then
+            echo "❌ Rule construct function missing"
+            exit 1
+          fi
+          
+          echo "✅ Code generation validation passed"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: build-artifacts
+          path: |
+            kotlin-cdk-lib/build/cdk/wrappers/
+            build/reports/
+          retention-days: 7
