@@ -17,7 +17,7 @@ jobs:
           java-version: 17
 
       # validate that the gradle wrapper matches official checksums.
-      - uses: gradle/wrapper-validation-action@v3
+      - uses: gradle/actions/wrapper-validation@v3
 
       - name: Build and Publish with Gradle
         run: |
