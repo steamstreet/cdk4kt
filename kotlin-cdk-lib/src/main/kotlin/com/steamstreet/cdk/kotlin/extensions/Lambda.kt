@@ -25,6 +25,7 @@ public fun Function.failureAlarm(
     numFailuresInPeriod: Int, numFailingPeriods: Int, numPeriodsToEvaluate: Int,
     period: kotlin.time.Duration, action: IAlarmAction, okAction: IAlarmAction? = null
 ) {
+
     Alarm("FunctionErrorAlarm") {
         comparisonOperator(ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD)
         threshold(numFailuresInPeriod)

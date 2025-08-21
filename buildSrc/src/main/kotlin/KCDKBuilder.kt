@@ -1,5 +1,4 @@
 import com.squareup.kotlinpoet.*
-import software.amazon.awscdk.services.lambda.FunctionProps
 import software.constructs.Construct
 import java.io.File
 import java.io.IOException
@@ -14,13 +13,6 @@ import kotlin.reflect.full.isSubclassOf
 class KCDKBuilder(val outputPackage: String, val baseDir: File) {
     val files = HashMap<String, FileSpec.Builder>()
     val builderFunctionNames = HashSet<String>()
-
-    fun example() {
-
-        FunctionProps.builder().apply {
-
-        }.build()
-    }
 
     private fun fileForGroup(group: String): FileSpec.Builder {
         return files.getOrPut(group) {
@@ -90,13 +82,24 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
 
         val constructorsFile = fileForGroup(group)
 
+        // CASE 1: Builder classes - these extend software.amazon.jsii.Builder
+        // They are helper builder classes like Queue.Builder, Rule.Builder etc.
+        // We generate extension functions for their methods that take builder parameters
         if (clazz.isSubclassOf(software.amazon.jsii.Builder::class)) {
             addBuilderShortcuts(group, clazz)
             return
         }
 
+        // Check if this is a Construct subclass
+        val isConstruct = clazz.isSubclassOf(Construct::class)
+        
+        // CASE 2: Classes with static builder() method
+        // These are typically Props classes (e.g., QueueProps, AlarmProps) or 
+        // other non-Construct classes that use builder pattern
+        // We generate: ClassName { ... } functions
+        // SKIP this for Constructs to allow constructor pattern detection
         val builderFunction = clazz.members.find { it.name == "builder" }
-        if (builderFunction != null) {
+        if (builderFunction != null && !isConstruct) {
             if (!builderFunction.annotations.isDeprecated) {
                 constructorsFile.addFunction(
                     FunSpec.builder(clazz.simpleName!!).returns(clazz)
@@ -119,12 +122,20 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
             return
         }
 
+        // CASE 3: Classes with constructors (typically CDK Constructs)
+        // These are classes that don't have a static builder() but have constructors
+        // We look for two patterns:
+        // a) Constructor(Props) - generates: ClassName { ... }
+        // b) Constructor(Construct, String, Props?) - generates: Construct.ClassName(id) { ... }
+        
         val idOnlyConstructors = hashSetOf<String>()
 
         clazz.constructors.filter {
             it.visibility == KVisibility.PUBLIC && !it.annotations.isDeprecated
         }.forEach { constructor ->
             val first = constructor.parameters.firstOrNull()
+            
+            // Pattern a: Single parameter constructor with Props
             if (constructor.parameters.size == 1) {
                 val propsType = (first?.type?.classifier as? KClass<*>)
                 val builder = propsType?.members?.find { it.name == "builder" }
@@ -150,6 +161,7 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                     )
                 }
             } else {
+                // Pattern b: CDK Construct pattern (Construct, String, Props?)
                 val firstType = (first?.type?.classifier as? KClass<*>)
                 if (firstType?.isSubclassOf(Construct::class) == true) {
                     val second = constructor.parameters.getOrNull(1)
@@ -161,6 +173,8 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                     val isDuplicate = builder == null && idOnlyConstructors.contains(clazz.simpleName!!)
 
                     if (isIdConstructor && !isDuplicate) {
+                        // Generate extension function on Construct
+                        // e.g., fun Construct.Queue(id: String, props: QueueProps.Builder.() -> Unit): Queue
                         constructorsFile.addFunction(
                             FunSpec.builder(clazz.simpleName!!).returns(clazz)
                                 .receiver(firstType)
@@ -170,6 +184,7 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                                     addParameter("id", String::class)
 
                                     if (builder != null) {
+                                        // Constructor with props - generate DSL version
                                         addParameter(
                                             "props",
                                             LambdaTypeName.get(
@@ -183,6 +198,7 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
                                             propsType
                                         )
                                     } else {
+                                        // Constructor without props - simple delegation
                                         addStatement("return %T(this, id)", clazz)
                                         idOnlyConstructors.add(clazz.simpleName!!)
                                     }
@@ -218,7 +234,18 @@ class KCDKBuilder(val outputPackage: String, val baseDir: File) {
             try {
                 val clazz = Class.forName(it)
                 buildConstruct(clazz.kotlin)
-            } catch (_: Throwable) {
+            } catch (e: Throwable) {
+                // Try to continue for classes that have initialization issues
+                // but still exist in the JAR - this might help with CDK construct classes
+                if (e is ExceptionInInitializerError || e is NoClassDefFoundError) {
+                    try {
+                        // Try to load the class without initializing it
+                        val clazz = Class.forName(it, false, this.javaClass.classLoader)
+                        buildConstruct(clazz.kotlin)
+                    } catch (_: Throwable) {
+                        // Ignore if still can't load
+                    }
+                }
             }
         }
         files.forEach { (_, value) ->

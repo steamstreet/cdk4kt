@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 plugins {
     kotlin("jvm")
     id("maven-publish")
-    id("org.jetbrains.dokka") version "1.9.10"
+    id("org.jetbrains.dokka") version "1.9.20"
     signing
 }
 
@@ -19,6 +19,8 @@ dependencies {
     api(libs.kotlin.serialization.json)
     api("org.jetbrains.kotlin:kotlin-reflect")
     api(libs.jackson)
+
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
@@ -85,4 +87,7 @@ signing {
 
 tasks.withType<Sign> {
     onlyIf { project.hasProperty("signing.keyId") }
+}
+tasks.test {
+    useJUnitPlatform()
 }
