@@ -15,18 +15,18 @@ jobs:
     if: contains(github.head_ref, 'dependabot') && contains(github.event.pull_request.title, 'cdkVersion')
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: 17
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Extract CDK version from PR
         id: extract-version
@@ -130,17 +130,17 @@ jobs:
     if: contains(github.head_ref, 'dependabot') && contains(github.event.pull_request.title, 'cdkVersion')
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: 17
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Build with current CDK version
         run: |
