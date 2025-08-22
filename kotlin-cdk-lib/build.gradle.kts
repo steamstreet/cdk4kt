@@ -7,13 +7,6 @@ plugins {
     signing
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
-    withSourcesJar()
-}
-
 dependencies {
     api(libs.aws.cdk)
     api(libs.kotlin.serialization.json)
@@ -25,6 +18,7 @@ dependencies {
 
 kotlin {
     explicitApi = ExplicitApiMode.Warning
+    jvmToolchain(17)
 }
 
 java.sourceSets["main"].java {
