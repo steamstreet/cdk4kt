@@ -22,6 +22,6 @@ dependencies {
     // So we use the same versions defined in libs.versions.toml
     api("software.amazon.awscdk:aws-cdk-lib:${findProperty("cdkVersion")}")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    api("com.squareup:kotlinpoet:1.16.0")
+    api("com.squareup:kotlinpoet:2.2.0")
     api("org.jetbrains.kotlin:kotlin-reflect")
 }
