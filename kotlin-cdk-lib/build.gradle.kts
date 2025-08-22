@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    kotlin("jvm")
     id("maven-publish")
     alias(libs.plugins.dokka)
     signing
@@ -9,7 +9,6 @@ plugins {
 
 dependencies {
     api(libs.aws.cdk)
-    api(libs.kotlin.serialization.json)
     api(libs.kotlin.reflect)
     api(libs.jackson)
 

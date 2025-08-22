@@ -18,10 +18,8 @@ Properties().let { props ->
 }
 
 dependencies {
-    // Use versions from the version catalog (we can't directly access catalog in buildSrc)
-    // So we use the same versions defined in libs.versions.toml
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${findProperty("kotlinVersion")}")
     api("software.amazon.awscdk:aws-cdk-lib:${findProperty("cdkVersion")}")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    api("com.squareup:kotlinpoet:1.16.0")
+    api("com.squareup:kotlinpoet:2.2.0")
     api("org.jetbrains.kotlin:kotlin-reflect")
 }
