@@ -1,0 +1,44 @@
+[versions]
+# Core versions - these should match gradle.properties
+kotlin = "2.2.10"
+cdk = "2.212.0"
+
+# Dependencies
+kotlin-serialization = "1.7.3"
+kotlinpoet = "2.0.0"
+jackson = "2.18.2"
+dokka = "2.0.0"
+
+# Gradle plugins
+nexus-publish = "1.3.0"
+foojay-resolver = "1.0.0"
+
+[libraries]
+# AWS CDK
+aws-cdk = { module = "software.amazon.awscdk:aws-cdk-lib", version.ref = "cdk" }
+aws-cdk-apigateway = { module = "software.amazon.awscdk:apigatewayv2-integrations-alpha", version = "2.212.0-alpha.0" }
+
+# Kotlin libraries
+kotlin-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+# Code generation
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+
+# Jackson JSON processing
+jackson = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+
+[plugins]
+# Kotlin plugins
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+# Documentation
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+
+# Publishing
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish" }
+
+# Gradle
+foojay-resolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay-resolver" }

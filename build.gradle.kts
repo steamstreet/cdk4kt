@@ -6,11 +6,10 @@ buildscript {
 }
 
 plugins {
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    alias(libs.plugins.nexus.publish)
 }
 
 val cdkVersion = findProperty("cdkVersion") as String
-val kotlinVersion = findProperty("kotlinVersion") as String
 val releaseVersion = findProperty("RELEASE_NAME") as? String
 
 allprojects {
@@ -21,8 +20,11 @@ allprojects {
 nexusPublishing {
     repositories {
         sonatype {
-            username = findProperty("sonatypeUsername").toString()
-            password = findProperty("sonatypePassword").toString()
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+
+            username = findProperty("mavenCentralUsername").toString()
+            password = findProperty("mavenCentralPassword").toString()
         }
     }
 }

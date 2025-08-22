@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     id("maven-publish")
-    id("org.jetbrains.dokka") version "1.9.20"
+    alias(libs.plugins.dokka)
     signing
 }
 
@@ -17,10 +17,10 @@ java {
 dependencies {
     api(libs.aws.cdk)
     api(libs.kotlin.serialization.json)
-    api("org.jetbrains.kotlin:kotlin-reflect")
+    api(libs.kotlin.reflect)
     api(libs.jackson)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 }
 
 kotlin {
