@@ -1,7 +1,7 @@
 [versions]
 # Core versions - these should match gradle.properties
 kotlin = "1.9.25"
-cdk = "2.212.0"
+cdk = "2.213.0"
 
 # Dependencies
 kotlinpoet = "2.2.0"
