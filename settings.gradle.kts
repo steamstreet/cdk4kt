@@ -1,8 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "kotlin-cdk"
 
 include(":kotlin-cdk-lib")
+include(":kotlin-cdk-constructs")
 
 pluginManagement {
     val kotlinVersion: String by settings
