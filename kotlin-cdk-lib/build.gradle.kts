@@ -35,6 +35,11 @@ tasks.named("compileKotlin") {
 
 val dokkaHtml by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class)
 
+val sourcesJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
 val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
     dependsOn(dokkaHtml)
     archiveClassifier.set("javadoc")
@@ -44,6 +49,7 @@ val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
+        artifact(sourcesJar)
         artifact(javadocJar)
         pom {
             name.set("CDK4KT")
