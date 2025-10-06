@@ -1,6 +1,6 @@
 [versions]
 # Core versions - these should match gradle.properties
-kotlin = "1.9.25"
+kotlin = "2.2.20"
 cdk = "2.212.0"
 
 # Dependencies
