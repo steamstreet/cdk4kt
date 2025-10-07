@@ -20,7 +20,7 @@ jobs:
           java-version: 21
 
       # validate that the gradle wrapper matches official checksums.
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v5
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
