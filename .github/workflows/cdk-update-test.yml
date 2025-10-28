@@ -23,7 +23,7 @@ jobs:
           java-version: 17
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@v5
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
@@ -111,7 +111,7 @@ jobs:
           find kotlin-cdk-lib/build/cdk/wrappers -name "*.kt" | grep -o "kotlin/[^/]*/" | sort | uniq | sed 's/kotlin\///g' | sed 's/\///g' | sed 's/^/- /' >> cdk-report.md
 
       - name: Comment PR with report
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -181,7 +181,7 @@ jobs:
           fi
 
       - name: Comment breaking changes analysis
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
