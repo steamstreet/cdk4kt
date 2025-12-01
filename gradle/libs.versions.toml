@@ -6,7 +6,7 @@ cdk = "2.212.0"
 # Dependencies
 kotlinpoet = "2.2.0"
 jackson = "2.17.2"
-dokka = "1.9.20"
+dokka = "2.1.0"
 
 # Gradle plugins
 nexus-publish = "1.3.0"
